@@ -1,3 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pet Care Game</title>
+<style>
+  body { font-family: sans-serif; margin:0; padding:0; background:#f0f0f0; }
+  #menu { display:flex; gap:10px; padding:10px; background:#ddd; }
+  #menu button { padding:10px 20px; font-size:16px; cursor:pointer; }
+  #stats { display:flex; gap:10px; padding:10px; background:#eee; }
+  .bar-container { width:100px; background:#ccc; height:20px; border-radius:5px; overflow:hidden; }
+  .bar { height:100%; width:100%; background:green; transition:width 0.2s; }
+  #game-area { display:flex; flex-direction:column; align-items:center; padding:20px; }
+  #pet-canvas { border:2px solid #333; background:white; }
+  #shower-items, #kitchen-items, #games-room {
+    display:none;
+    gap:10px;
+    margin-top:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+  .drag-item { font-size:40px; cursor:grab; }
+  #games-room > div { display:none; margin-top:20px; }
+  #games-room { flex-direction:column; align-items:center; }
+</style>
+</head>
+<body>
+
+<div id="menu">
+  <button id="btn-shower">Shower</button>
+  <button id="btn-kitchen">Kitchen</button>
+  <button id="btn-games">Games</button>
+</div>
+
+<div id="stats">
+  <div>Hunger<div class="bar-container"><div id="hunger-bar" class="bar"></div></div></div>
+  <div>Health<div class="bar-container"><div id="health-bar" class="bar"></div></div></div>
+  <div>Fun<div class="bar-container"><div id="fun-bar" class="bar"></div></div></div>
+</div>
+
+<div id="game-area">
+  <canvas id="pet-canvas" width="200" height="200"></canvas>
+
+  <div id="shower-items">
+    <div id="soap" class="drag-item" draggable="true">🧼</div>
+    <div id="shower" class="drag-item" draggable="true">🚿</div>
+  </div>
+
+  <div id="kitchen-items"></div>
+
+  <div id="games-room">
+    <div id="game1-container">
+      <h3>Game 1 (placeholder)</h3>
+      <p>Drag matching items here</p>
+    </div>
+    <div id="game2-container">
+      <h3>Game 2 (placeholder)</h3>
+      <p>Flappy-like game here</p>
+    </div>
+    <div id="game3-container">
+      <h3>Game 3 (placeholder)</h3>
+      <p>Catch objects here</p>
+    </div>
+  </div>
+</div>
+
 <script>
 // ---- STATS ----
 const stats = { hunger:100, health:100, fun:100 };
@@ -148,18 +215,11 @@ function startRandomGame(){
   if(g===3) startGame3();
 }
 
-// Example simple Game1 (drag matching)
-function startGame1(){
-  document.getElementById('game1-container').style.display='flex';
-}
-
-// Example simple Game2 (flappy placeholder)
-function startGame2(){
-  document.getElementById('game2-container').style.display='flex';
-}
-
-// Example simple Game3 (catch placeholder)
-function startGame3(){
-  document.getElementById('game3-container').style.display='flex';
-}
+// Example placeholders for now:
+function startGame1(){ document.getElementById('game1-container').style.display='flex'; }
+function startGame2(){ document.getElementById('game2-container').style.display='flex'; }
+function startGame3(){ document.getElementById('game3-container').style.display='flex'; }
 </script>
+
+</body>
+</html>
