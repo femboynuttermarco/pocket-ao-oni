@@ -1,155 +1,269 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Virtual Pet</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #f0f0f0;
-      overflow: hidden;
-    }
-
-    .container {
-      position: relative;
-      width: 100vw;
-      height: 100vh;
-    }
-
-    .pet-image {
-      width: 100%;
-      height: 100%;
-      object-fit: contain;
-    }
-
-    .stats-panel {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(255, 255, 255, 0.9);
-      padding: 10px;
-      border-radius: 10px;
-      width: 150px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
-    }
-
-    .stat {
-      margin-bottom: 10px;
-    }
-
-    .stat-name {
-      font-weight: bold;
-    }
-
-    .bar-bg {
-      background: #ccc;
-      width: 100%;
-      height: 10px;
-      border-radius: 5px;
-      margin-top: 2px;
-    }
-
-    .bar-fill {
-      background: green;
-      height: 10px;
-      border-radius: 5px;
-      width: 100%;
-    }
-
-    .button-panel {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      display: flex;
-      gap: 10px;
-    }
-
-    .button-panel button {
-      padding: 10px 15px;
-      font-size: 14px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      background-color: #2196f3;
-      color: white;
-    }
-
-    .button-panel button:hover {
-      background-color: #1976d2;
-    }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Virtual Pet</title>
+<style>
+  body {
+    margin: 0; font-family: Arial, sans-serif; user-select: none;
+  }
+  .container {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+  }
+  .pet-image {
+    width: 180px;
+    transition: filter 0.3s ease;
+    display: block;
+    margin: 30px auto;
+  }
+  .stats-panel {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 12px;
+    border-radius: 12px;
+    width: 160px;
+    box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  }
+  .stat {
+    margin-bottom: 12px;
+  }
+  .stat-name {
+    font-weight: bold;
+    font-size: 14px;
+  }
+  .bar-bg {
+    background: #ccc;
+    width: 100%;
+    height: 12px;
+    border-radius: 6px;
+    margin-top: 4px;
+  }
+  .bar-fill {
+    background: green;
+    height: 12px;
+    border-radius: 6px;
+    width: 100%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+  }
+  .button-panel {
+    position: absolute;
+    top: 10px; left: 10px;
+    display: flex;
+    gap: 12px;
+  }
+  .button-panel button {
+    padding: 10px 18px;
+    font-size: 14px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    background-color: #2196f3;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  .button-panel button:hover {
+    background-color: #1976d2;
+  }
+  .room {
+    display: none;
+    width: 100%;
+    height: 100%;
+    padding-top: 40px;
+    box-sizing: border-box;
+    text-align: center;
+  }
+  .room.active {
+    display: block;
+  }
+  /* Shower draggable items container */
+  #shower-items {
+    margin-bottom: 20px;
+    font-size: 50px;
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    user-select: none;
+  }
+  .drag-item {
+    cursor: grab;
+  }
+  /* Kitchen plates container */
+  #kitchen-plates {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    font-size: 48px;
+    user-select: none;
+  }
+  .plate {
+    cursor: pointer;
+    user-select: none;
+    transition: transform 0.2s ease;
+  }
+  .plate:hover {
+    transform: scale(1.2);
+  }
+</style>
 </head>
 <body>
 
-  <div class="container">
-    <!-- Buttons -->
-    <div class="button-panel">
-      <button onclick="increaseStat('health')">Shower</button>
-      <button onclick="increaseStat('hunger')">Kitchen</button>
-      <button onclick="increaseStat('fun')">Games</button>
-    </div>
+<div class="container">
 
-    <!-- Stats -->
-    <div class="stats-panel">
-      <div class="stat">
-        <div class="stat-name">Hunger</div>
-        <div class="bar-bg"><div id="hunger-bar" class="bar-fill"></div></div>
-      </div>
-      <div class="stat">
-        <div class="stat-name">Health</div>
-        <div class="bar-bg"><div id="health-bar" class="bar-fill"></div></div>
-      </div>
-      <div class="stat">
-        <div class="stat-name">Fun</div>
-        <div class="bar-bg"><div id="fun-bar" class="bar-fill"></div></div>
-      </div>
-    </div>
-
-    <!-- Image -->
-    <img class="pet-image" src="https://th.bing.com/th/id/OIP.LuohQanTX6FMimfo2B000wAAAA?w=115&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3" alt="Pet Image" />
-    <!-- Replace the above URL with your own -->
+  <div class="button-panel">
+    <button onclick="switchRoom('shower')">Shower</button>
+    <button onclick="switchRoom('kitchen')">Kitchen</button>
+    <button onclick="switchRoom('games')">Games</button>
   </div>
 
-  <script>
-    const stats = {
-      hunger: 100,
-      health: 100,
-      fun: 100
-    };
+  <div class="stats-panel">
+    <div class="stat">
+      <div class="stat-name">Hunger</div>
+      <div class="bar-bg"><div id="hunger-bar" class="bar-fill"></div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-name">Health</div>
+      <div class="bar-bg"><div id="health-bar" class="bar-fill"></div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-name">Fun</div>
+      <div class="bar-bg"><div id="fun-bar" class="bar-fill"></div></div>
+    </div>
+  </div>
 
-    function updateBars() {
-      for (const key in stats) {
-        const bar = document.getElementById(`${key}-bar`);
-        bar.style.width = `${stats[key]}%`;
+  <!-- Shower Room -->
+  <div id="shower" class="room active">
+    <div id="shower-items">
+      <div class="drag-item" draggable="true" id="soap" ondragstart="drag(event)">🧼</div>
+      <div class="drag-item" draggable="true" id="showerhead" ondragstart="drag(event)">🚿</div>
+    </div>
+    <img id="pet" class="pet-image" src="https://placekitten.com/200/200" alt="Pet"
+      ondragover="allowDrop(event)" ondrop="drop(event)" />
+  </div>
 
-        // Change color based on value
-        if (stats[key] > 60) {
-          bar.style.backgroundColor = "green";
-        } else if (stats[key] > 30) {
-          bar.style.backgroundColor = "orange";
-        } else {
-          bar.style.backgroundColor = "red";
-        }
+  <!-- Kitchen Room -->
+  <div id="kitchen" class="room">
+    <h2>Pick a dish to feed!</h2>
+    <div id="kitchen-plates"></div>
+  </div>
+
+  <!-- Games Room -->
+  <div id="games" class="room">
+    <h2>Games coming soon...</h2>
+  </div>
+
+</div>
+
+<script>
+  // Stats state
+  const stats = {
+    hunger: 100,
+    health: 100,
+    fun: 100
+  };
+
+  // Pet image reference
+  const petImg = document.getElementById('pet');
+
+  // Flag to track if soap was applied
+  let soapApplied = false;
+
+  // Update progress bars
+  function updateBars() {
+    ['hunger', 'health', 'fun'].forEach(stat => {
+      const bar = document.getElementById(`${stat}-bar`);
+      bar.style.width = `${stats[stat]}%`;
+      if (stats[stat] > 60) {
+        bar.style.backgroundColor = 'green';
+      } else if (stats[stat] > 30) {
+        bar.style.backgroundColor = 'orange';
+      } else {
+        bar.style.backgroundColor = 'red';
       }
-    }
+    });
+  }
 
-    function decreaseStats() {
-      for (const key in stats) {
-        stats[key] = Math.max(0, stats[key] - 1);
-      }
-      updateBars();
-    }
-
-    function increaseStat(stat) {
-      stats[stat] = Math.min(100, stats[stat] + 20);
-      updateBars();
-    }
-
-    // Start updating every second
-    setInterval(decreaseStats, 1000);
+  // Gradually decrease stats over time
+  setInterval(() => {
+    stats.hunger = Math.max(0, stats.hunger - 0.5);
+    stats.health = Math.max(0, stats.health - 0.3);
+    stats.fun = Math.max(0, stats.fun - 0.2);
     updateBars();
-  </script>
+  }, 1000);
+
+  updateBars();
+
+  // Switch rooms
+  function switchRoom(room) {
+    document.querySelectorAll('.room').forEach(r => r.classList.remove('active'));
+    document.getElementById(room).classList.add('active');
+    if (room === 'kitchen') generateKitchenPlates();
+  }
+
+  // Drag and drop handlers
+  function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+  }
+
+  function allowDrop(ev) {
+    ev.preventDefault();
+  }
+
+  function drop(ev) {
+    ev.preventDefault();
+    const draggedId = ev.dataTransfer.getData("text");
+    if (draggedId === "soap") {
+      // Apply soap - brighten pet image
+      petImg.style.filter = "brightness(1.3)";
+      soapApplied = true;
+    } else if (draggedId === "showerhead" && soapApplied) {
+      // Reset filter and fill health
+      petImg.style.filter = "brightness(1)";
+      soapApplied = false;
+      stats.health = 100;
+      updateBars();
+    }
+  }
+
+  // Kitchen plates & objects emojis
+  const foodEmojis = ["🍞", "🥞", "🧇", "🍖", "🍗", "🍕"];
+  const badEmojis = ["🪨", "⌛", "👓", "🕶️", "🥽", "🧤"];
+
+  // Generate 3 random plates or objects for kitchen
+  function generateKitchenPlates() {
+    const container = document.getElementById('kitchen-plates');
+    container.innerHTML = '';
+    const allEmojis = foodEmojis.concat(badEmojis);
+
+    // Pick 3 random emojis from allEmojis (can be food or bad)
+    const chosen = [];
+    while(chosen.length < 3) {
+      const emoji = allEmojis[Math.floor(Math.random() * allEmojis.length)];
+      if (!chosen.includes(emoji)) chosen.push(emoji);
+    }
+
+    chosen.forEach(emoji => {
+      const div = document.createElement('div');
+      div.classList.add('plate');
+      div.textContent = emoji;
+      div.title = foodEmojis.includes(emoji) ? "Food: increases hunger" : "Bad item: decreases hunger";
+      div.onclick = () => {
+        if(foodEmojis.includes(emoji)) {
+          stats.hunger = Math.min(100, stats.hunger + 15);
+        } else {
+          stats.hunger = Math.max(0, stats.hunger - 15);
+        }
+        updateBars();
+        // regenerate plates after selection
+        generateKitchenPlates();
+      };
+      container.appendChild(div);
+    });
+  }
+</script>
+
 </body>
 </html>
