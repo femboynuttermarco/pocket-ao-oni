@@ -1,284 +1,417 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Pet Game with Mini-Games</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial;
-      overflow: hidden;
-      background: #f0f0f0;
-    }
-    #buttons, #top-bar, #room, #games-room { position: absolute; }
-    #buttons {
-      top: 10px;
-      left: 10px;
-    }
-    #buttons button {
-      margin: 0 5px;
-    }
-    #top-bar {
-      top: 10px;
-      right: 10px;
-      background: #fff;
-      padding: 10px;
-      border-radius: 10px;
-      width: 200px;
-    }
-    .stat {
-      margin-bottom: 10px;
-    }
-    .stat-bar-bg {
-      background: #ccc;
-      height: 14px;
-      border-radius: 7px;
-      overflow: hidden;
-    }
-    .stat-bar {
-      height: 14px;
-      border-radius: 7px;
-      width: 100%;
-      background: green;
-    }
-    #room, #games-room {
-      top: 60px;
-      left: 50%;
-      transform: translateX(-50%);
-      text-align: center;
-      width: 100%;
-    }
-    canvas { border: 1px solid #aaa; border-radius: 10px; cursor: crosshair; }
-    .hidden { display: none; }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pet Game with Shower, Kitchen, and Games</title>
+<style>
+  body {
+    margin: 0;
+    padding: 10px;
+    font-family: Arial, sans-serif;
+    user-select: none;
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+  #top-bar {
+    position: fixed;
+    top: 10px; right: 10px;
+    background: rgba(255,255,255,0.95);
+    padding: 10px;
+    border-radius: 10px;
+    width: 200px;
+    box-shadow: 0 0 6px rgba(0,0,0,0.1);
+    z-index: 10;
+  }
+  .stat {
+    margin-bottom: 10px;
+  }
+  .stat-label {
+    font-weight: bold;
+  }
+  .stat-bar-bg {
+    background: #ccc;
+    height: 14px;
+    border-radius: 7px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+  .stat-bar {
+    height: 14px;
+    border-radius: 7px;
+    width: 100%;
+    background: green;
+    transition: width 0.3s, background-color 0.3s;
+  }
 
-    /* Game Timer Bar */
-    #game-timer-bar-bg {
-      width: 300px;
-      height: 20px;
-      background: #ddd;
-      margin: 10px auto;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    #game-timer-bar {
-      height: 100%;
-      background: #f90;
-      width: 100%;
-      transition: width 0.1s linear;
-    }
+  #buttons {
+    position: fixed;
+    top: 10px; left: 10px;
+    display: flex;
+    gap: 10px;
+    z-index: 10;
+  }
+  #buttons button {
+    padding: 8px 14px;
+    font-size: 14px;
+    cursor: pointer;
+  }
 
-    /* Game 1 */
-    .game1-container {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    .game1-slot, .game1-image {
-      width: 80px;
-      height: 80px;
-      border: 1px solid #000;
-      background-size: cover;
-      background-position: center;
-    }
+  #room {
+    margin: 60px auto 10px auto;
+    position: relative;
+    width: 400px;
+    height: 400px;
+  }
 
-    /* Game 3 */
-    #game3-pet {
-      width: 80px;
-      height: 80px;
-      background: url('https://example.com/pet.png') no-repeat center / cover;
-      position: absolute;
-    }
-    .game3-item {
-      width: 40px;
-      height: 40px;
-      font-size: 30px;
-      text-align: center;
-      line-height: 40px;
-      position: absolute;
-    }
-  </style>
+  #pet-canvas {
+    width: 400px;
+    height: 400px;
+    border: 1px solid #aaa;
+    border-radius: 10px;
+    display: block;
+    margin: 0 auto;
+    cursor: crosshair;
+  }
+
+  #shower-items, #kitchen-items, #games-room {
+    position: absolute;
+    bottom: -80px;
+    width: 100%;
+    display: none;
+    justify-content: center;
+    gap: 30px;
+    font-size: 40px;
+  }
+  .drag-item {
+    cursor: grab;
+    transition: opacity 0.2s;
+  }
+  .drag-item.dragging {
+    opacity: 0.5;
+  }
+
+  #kitchen-items {
+    font-size: 50px;
+    gap: 20px;
+    margin-top: 20px;
+  }
+
+  #games-room {
+    flex-direction: column;
+    align-items: center;
+    font-size: 20px;
+  }
+  #game1-container, #game2-container, #game3-container {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+  }
+  .game-images-row {
+    display: flex;
+    gap: 10px;
+    margin: 10px;
+  }
+  .game-images-row img {
+    width: 80px;
+    height: 80px;
+    border: 1px solid #444;
+    border-radius: 8px;
+    cursor: grab;
+  }
+  #game-timer-bar-bg {
+    background: #ccc;
+    height: 14px;
+    width: 300px;
+    border-radius: 7px;
+    overflow: hidden;
+    margin-bottom: 10px;
+  }
+  #game-timer-bar {
+    height: 14px;
+    width: 100%;
+    background: blue;
+    border-radius: 7px;
+    transition: width 0.2s linear;
+  }
+</style>
 </head>
 <body>
-  <div id="buttons">
-    <button onclick="showRoom('shower')">Shower</button>
-    <button onclick="showRoom('kitchen')">Kitchen</button>
-    <button onclick="startGameRoom()">Games</button>
+
+<div id="top-bar">
+  <div class="stat">
+    <div class="stat-label">Hunger</div>
+    <div class="stat-bar-bg"><div id="hunger-bar" class="stat-bar"></div></div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Health</div>
+    <div class="stat-bar-bg"><div id="health-bar" class="stat-bar"></div></div>
+  </div>
+  <div class="stat">
+    <div class="stat-label">Fun</div>
+    <div class="stat-bar-bg"><div id="fun-bar" class="stat-bar"></div></div>
+  </div>
+</div>
+
+<div id="buttons">
+  <button id="btn-shower">Shower</button>
+  <button id="btn-kitchen">Kitchen</button>
+  <button id="btn-games">Games</button>
+</div>
+
+<div id="room">
+  <canvas id="pet-canvas" width="400" height="400"></canvas>
+
+  <div id="shower-items">
+    <div id="soap" class="drag-item" draggable="true">🧼</div>
+    <div id="shower" class="drag-item" draggable="true">🚿</div>
   </div>
 
-  <div id="top-bar">
-    <div class="stat">
-      <div>Hunger</div>
-      <div class="stat-bar-bg"><div id="hunger-bar" class="stat-bar"></div></div>
-    </div>
-    <div class="stat">
-      <div>Health</div>
-      <div class="stat-bar-bg"><div id="health-bar" class="stat-bar"></div></div>
-    </div>
-    <div class="stat">
-      <div>Fun</div>
-      <div class="stat-bar-bg"><div id="fun-bar" class="stat-bar"></div></div>
-    </div>
-  </div>
+  <div id="kitchen-items"></div>
 
-  <div id="room">
-    <canvas id="pet-canvas" width="400" height="400"></canvas>
-    <div id="shower-items" class="hidden">
-      <div draggable="true" id="soap">🧼</div>
-      <div draggable="true" id="shower">🚿</div>
-    </div>
-    <div id="kitchen-items" class="hidden"></div>
-  </div>
-
-  <div id="games-room" class="hidden">
+  <div id="games-room">
     <div id="game-timer-bar-bg"><div id="game-timer-bar"></div></div>
-    <div id="game-container"></div>
+    <div id="game1-container">
+      <div class="game-images-row" id="game1-top"></div>
+      <div class="game-images-row" id="game1-bottom"></div>
+    </div>
+    <div id="game2-container">
+      <canvas id="flappy-canvas" width="300" height="400" style="border:1px solid #000;"></canvas>
+    </div>
+    <div id="game3-container">
+      <canvas id="catch-canvas" width="300" height="400" style="border:1px solid #000;"></canvas>
+      <div>Score: <span id="catch-score">0</span></div>
+    </div>
   </div>
+</div>
 
-  <script>
-    let stats = { hunger: 100, health: 100, fun: 100 };
-    function updateBars() {
-      ['hunger','health','fun'].forEach(stat => {
-        const bar = document.getElementById(`${stat}-bar`);
-        bar.style.width = `${stats[stat]}%`;
-        bar.style.backgroundColor = stats[stat] > 60 ? 'green' : stats[stat] > 30 ? 'orange' : 'red';
-      });
-    }
-    updateBars();
+<script>
+const stats = { hunger:100, health:100, fun:100 };
+function updateBars() {
+  ['hunger','health','fun'].forEach(s=>{
+    const b=document.getElementById(s+'-bar');
+    b.style.width=stats[s]+'%';
+    b.style.backgroundColor=stats[s]>60?'green':stats[s]>30?'orange':'red';
+  });
+}
+updateBars();
 
-    // ROOM SWITCHING
-    function showRoom(name) {
-      document.getElementById('room').classList.remove('hidden');
-      document.getElementById('games-room').classList.add('hidden');
-      document.getElementById('shower-items').classList.add('hidden');
-      document.getElementById('kitchen-items').classList.add('hidden');
-      if (name === 'shower') document.getElementById('shower-items').classList.remove('hidden');
-      if (name === 'kitchen') document.getElementById('kitchen-items').classList.remove('hidden');
-    }
+const canvas = document.getElementById('pet-canvas');
+const ctx = canvas.getContext('2d');
+let originalImageData, currentImageData;
 
-    // GAMES ROOM START
-    function startGameRoom() {
-      document.getElementById('room').classList.add('hidden');
-      document.getElementById('games-room').classList.remove('hidden');
-      startRandomGame();
-    }
+const petImage = new Image();
+petImage.crossOrigin = "anonymous";
+// ✅ Your pet image inserted here:
+petImage.src = "https://th.bing.com/th/id/OIP.LuohQanTX6FMimfo2B000wAAAA?w=115&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3";
+petImage.onload = () => {
+  ctx.drawImage(petImage,0,0,canvas.width,canvas.height);
+  originalImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+  currentImageData = ctx.getImageData(0,0,canvas.width,canvas.height);
+};
 
-    function startRandomGame() {
-      const container = document.getElementById('game-container');
-      container.innerHTML = '';
-      const gameIndex = Math.floor(Math.random() * 3);
-      if (gameIndex === 0) startGame1();
-      if (gameIndex === 1) startGame2();
-      if (gameIndex === 2) startGame3();
-    }
+const showerItems = document.getElementById('shower-items');
+const kitchenItems = document.getElementById('kitchen-items');
+const gamesRoom = document.getElementById('games-room');
 
-    // GAME 1 – Match images
-    function startGame1() {
-      const container = document.getElementById('game-container');
-      const imgs = [
-        'IMAGE_URL_1',
-        'IMAGE_URL_2',
-        'IMAGE_URL_3'
-      ];
-      const shuffled = [...imgs].sort(() => 0.5 - Math.random());
-      const slots = imgs.map(() => '');
-      container.innerHTML = `
-        <div class="game1-container">${imgs.map(() => '<div class="game1-slot"></div>').join('')}</div>
-        <div class="game1-container">${shuffled.map(src => `<div class="game1-image" draggable="true" style="background-image:url('${src}')"></div>`).join('')}</div>
-      `;
-      startTimer(30, () => alert('Time up!'));
-    }
+function showRoom(room) {
+  showerItems.style.display='none';
+  kitchenItems.style.display='none';
+  gamesRoom.style.display='none';
+  if(room==='shower'){showerItems.style.display='flex';}
+  if(room==='kitchen'){kitchenItems.style.display='flex';generateKitchenItems();}
+  if(room==='games'){gamesRoom.style.display='flex';startRandomGame();}
+}
 
-    // GAME 2 – Flappy Pet (placeholder only)
-    function startGame2() {
-      const container = document.getElementById('game-container');
-      container.innerHTML = '<p>Flappy game will be implemented here with pet image and stop at 5 points.</p>';
-    }
+document.getElementById('btn-shower').onclick=()=>showRoom('shower');
+document.getElementById('btn-kitchen').onclick=()=>showRoom('kitchen');
+document.getElementById('btn-games').onclick=()=>showRoom('games');
 
-    // GAME 3 – Catch Food
-    function startGame3() {
-      const container = document.getElementById('game-container');
-      container.innerHTML = '<div id="game3-pet"></div>';
-      const pet = document.getElementById('game3-pet');
-      pet.style.left = '50%';
-      pet.style.top = '80%';
+// ---- soap & shower painting ----
+let draggingItem=null;
+document.getElementById('soap').ondragstart=()=>{draggingItem='soap';};
+document.getElementById('soap').ondragend=()=>{draggingItem=null;};
+document.getElementById('shower').ondragstart=()=>{draggingItem='shower';};
+document.getElementById('shower').ondragend=()=>{draggingItem=null;};
 
-      let caught = 0, lost = false;
-      startTimer(60, () => {
-        if (!lost && caught >= 25) alert('You win!');
-        else alert('Time up or you lost!');
-      });
-
-      document.addEventListener('mousemove', e => {
-        pet.style.left = `${e.clientX - 40}px`;
-      });
-
-      const items = ['🍞','🥞','🧇','🍖','🍗','🍕','🪨','⌛','👓','🕶️','🥽','🧤'];
-      const food = items.slice(0, 6);
-
-      let interval = setInterval(() => {
-        if (lost) return clearInterval(interval);
-        const el = document.createElement('div');
-        el.className = 'game3-item';
-        el.textContent = items[Math.floor(Math.random() * items.length)];
-        el.style.left = `${Math.random() * window.innerWidth}px`;
-        el.style.top = '0px';
-        document.body.appendChild(el);
-
-        let fall = setInterval(() => {
-          const top = parseFloat(el.style.top);
-          el.style.top = `${top + 4}px`;
-
-          const rect1 = pet.getBoundingClientRect();
-          const rect2 = el.getBoundingClientRect();
-          if (
-            rect1.left < rect2.right &&
-            rect1.right > rect2.left &&
-            rect1.top < rect2.bottom &&
-            rect1.bottom > rect2.top
-          ) {
-            if (!food.includes(el.textContent)) {
-              lost = true;
-              alert('You ate a bad item! Game over.');
-            } else {
-              caught++;
-              el.remove();
-              clearInterval(fall);
-            }
-          }
-
-          if (top > window.innerHeight) {
-            el.remove();
-            clearInterval(fall);
-          }
-        }, 20);
-      }, 500);
-    }
-
-    // Timer bar logic
-    function startTimer(seconds, onEnd) {
-      const bar = document.getElementById('game-timer-bar');
-      let start = Date.now();
-      const total = seconds * 1000;
-      function tick() {
-        let now = Date.now();
-        let elapsed = now - start;
-        let pct = Math.max(0, 1 - elapsed / total);
-        bar.style.width = (pct * 100) + '%';
-        if (elapsed < total) requestAnimationFrame(tick);
-        else onEnd();
+canvas.addEventListener('dragover',e=>{
+  e.preventDefault();
+  if(!draggingItem)return;
+  const rect=canvas.getBoundingClientRect();
+  const x=Math.floor(e.clientX-rect.left);
+  const y=Math.floor(e.clientY-rect.top);
+  if(draggingItem==='soap'){paintSoap(x,y);}
+  if(draggingItem==='shower'){paintShower(x,y);}
+});
+function getIndex(x,y,w){return(y*w+x)*4;}
+function paintSoap(cx,cy){
+  if(!currentImageData)return;
+  const r=15,d=currentImageData.data;
+  for(let y=Math.max(0,cy-r);y<Math.min(canvas.height,cy+r);y++){
+    for(let x=Math.max(0,cx-r);x<Math.min(canvas.width,cx+r);x++){
+      const dx=x-cx,dy=y-cy;if(dx*dx+dy*dy<=r*r){
+        const i=getIndex(x,y,canvas.width);
+        d[i]=Math.min(255,d[i]+15);
+        d[i+1]=Math.min(255,d[i+1]+15);
+        d[i+2]=Math.min(255,d[i+2]+15);
       }
-      tick();
     }
+  }
+  ctx.putImageData(currentImageData,0,0);
+}
+function approach(c,t,s){if(c<t)return Math.min(c+s,t);if(c>t)return Math.max(c-s,t);return c;}
+function paintShower(cx,cy){
+  if(!currentImageData)return;
+  const r=15,cd=currentImageData.data,od=originalImageData.data;
+  let heal=false;
+  for(let y=Math.max(0,cy-r);y<Math.min(canvas.height,cy+r);y++){
+    for(let x=Math.max(0,cx-r);x<Math.min(canvas.width,cx+r);x++){
+      const dx=x-cx,dy=y-cy;if(dx*dx+dy*dy<=r*r){
+        const i=getIndex(x,y,canvas.width);
+        cd[i]=approach(cd[i],od[i],15);
+        cd[i+1]=approach(cd[i+1],od[i+1],15);
+        cd[i+2]=approach(cd[i+2],od[i+2],15);
+        heal=true;
+      }
+    }
+  }
+  ctx.putImageData(currentImageData,0,0);
+  if(heal){stats.health=Math.min(100,stats.health+0.5);updateBars();}
+}
 
-    showRoom('shower');
-    setInterval(() => {
-      stats.hunger = Math.max(0, stats.hunger - 0.1);
-      stats.health = Math.max(0, stats.health - 0.05);
-      stats.fun = Math.max(0, stats.fun - 0.05);
-      updateBars();
-    }, 1000);
-  </script>
+// ---- Kitchen logic ----
+const kitchenFood=["🍞","🥞","🧇","🍖","🍗","🍕"];
+const kitchenBad=["🪨","⌛","👓","🕶️","🥽","🧤"];
+let kitchenDragging=null;
+
+function generateKitchenItems(){
+  kitchenItems.innerHTML='';
+  const f=[...kitchenFood].sort(()=>0.5-Math.random()).slice(0,3);
+  f.forEach(x=>{
+    const el=document.createElement('div');el.textContent=x;el.className='drag-item';el.draggable=true;el.dataset.type='food';
+    el.ondragstart=e=>{kitchenDragging=el;};el.ondragend=e=>{kitchenDragging=null;};
+    kitchenItems.appendChild(el);
+  });
+  const b=[...kitchenBad].sort(()=>0.5-Math.random()).slice(0,2);
+  b.forEach(x=>{
+    const el=document.createElement('div');el.textContent=x;el.className='drag-item';el.draggable=true;el.dataset.type='bad';
+    el.ondragstart=e=>{kitchenDragging=el;};el.ondragend=e=>{kitchenDragging=null;};
+    kitchenItems.appendChild(el);
+  });
+}
+
+canvas.addEventListener('drop',e=>{
+  e.preventDefault();
+  if(!kitchenDragging)return;
+  if(kitchenDragging.dataset.type==='food'){stats.hunger=Math.min(100,stats.hunger+15);}
+  if(kitchenDragging.dataset.type==='bad'){stats.hunger=Math.max(0,stats.hunger-15);}
+  updateBars();
+  kitchenDragging=null;
+});
+
+setInterval(()=>{stats.hunger=Math.max(0,stats.hunger-0.1);stats.health=Math.max(0,stats.health-0.05);stats.fun=Math.max(0,stats.fun-0.05);updateBars();},1000);
+
+// ---- Games logic ----
+let currentGame=null;
+function startRandomGame(){
+  document.getElementById('game1-container').style.display='none';
+  document.getElementById('game2-container').style.display='none';
+  document.getElementById('game3-container').style.display='none';
+  clearInterval(gameTimerInterval);
+  let g=Math.floor(Math.random()*3)+1;
+  if(g===1){startGame1();}
+  else if(g===2){startGame2();}
+  else{startGame3();}
+}
+
+// Game 1 placeholder
+const game1Images=["PUT_IMAGE_URL_1_HERE","PUT_IMAGE_URL_2_HERE","PUT_IMAGE_URL_3_HERE"];
+function startGame1(){
+  currentGame=1;
+  document.getElementById('game1-container').style.display='flex';
+  startTimer(30);
+  const top=document.getElementById('game1-top');
+  const bottom=document.getElementById('game1-bottom');
+  top.innerHTML='';bottom.innerHTML='';
+  game1Images.forEach(url=>{
+    let img=document.createElement('img');img.src=url;top.appendChild(img);
+  });
+  [...game1Images].sort(()=>0.5-Math.random()).forEach(url=>{
+    let img=document.createElement('img');img.src=url;img.draggable=true;bottom.appendChild(img);
+  });
+}
+
+// Game 2 (Flappy-like)
+function startGame2(){
+  currentGame=2;
+  document.getElementById('game2-container').style.display='flex';
+  const c=document.getElementById('flappy-canvas');const ctx2=c.getContext('2d');
+  let birdY=200,birdV=0,score=0,pipes=[];
+  const birdImg=new Image();
+  birdImg.src="PUT_YOUR_FLAPPY_IMAGE_URL_HERE"; // <- put your image here
+  function loop(){
+    ctx2.clearRect(0,0,c.width,c.height);
+    birdV+=0.5;birdY+=birdV;
+    if(birdY>c.height){alert("Game Over!");return;}
+    ctx2.drawImage(birdImg,50,birdY,40,40);
+    if(pipes.length<3||pipes[pipes.length-1].x<200){pipes.push({x:c.width, gapY:Math.random()*200+50});}
+    for(let i=0;i<pipes.length;i++){
+      let p=pipes[i];p.x-=2;
+      ctx2.fillStyle='green';
+      ctx2.fillRect(p.x,0,50,p.gapY-50);
+      ctx2.fillRect(p.x,p.gapY+50,50,c.height-p.gapY-50);
+      if(50< p.x+50 && 50+40>p.x && (birdY< p.gapY-50 || birdY+40>p.gapY+50)){alert("Game Over!");return;}
+      if(p.x+50<50 && !p.passed){p.passed=true;score++;if(score>=5){alert("You win!");return;}}
+    }
+    requestAnimationFrame(loop);
+  }
+  window.onkeydown=()=>{birdV=-7;}
+  loop();
+}
+
+// Game 3 (Catch food)
+function startGame3(){
+  currentGame=3;
+  document.getElementById('game3-container').style.display='flex';
+  startTimer(60);
+  const c=document.getElementById('catch-canvas');const ctx3=c.getContext('2d');
+  let petX=150,score=0;
+  let items=[];
+  function spawn(){let emoji=[...kitchenFood,...kitchenBad][Math.floor(Math.random()* (kitchenFood.length+kitchenBad.length))];items.push({x:Math.random()*260,y:0,e:emoji});}
+  setInterval(spawn,800);
+  function loop(){
+    ctx3.clearRect(0,0,c.width,c.height);
+    ctx3.fillStyle='blue';ctx3.fillRect(petX,360,40,40);
+    items.forEach(it=>{
+      ctx3.font='30px serif';ctx3.fillText(it.e,it.x,it.y);
+      it.y+=3;
+      if(it.y>340 && it.x>petX-20 && it.x<petX+40){
+        if(kitchenFood.includes(it.e)){score++;document.getElementById('catch-score').textContent=score;if(score>=25){alert("You win!");return;}}
+        else if(kitchenBad.includes(it.e)){alert("You ate bad item!");return;}
+      }
+    });
+    requestAnimationFrame(loop);
+  }
+  window.onkeydown=e=>{
+    if(e.key==='ArrowLeft'){petX-=20;if(petX<0)petX=0;}
+    if(e.key==='ArrowRight'){petX+=20;if(petX>260)petX=260;}
+  };
+  loop();
+}
+
+// timer bar
+let gameTimerInterval;
+function startTimer(sec){
+  let remain=sec;
+  const bar=document.getElementById('game-timer-bar');
+  clearInterval(gameTimerInterval);
+  gameTimerInterval=setInterval(()=>{
+    remain--;
+    bar.style.width=(remain/sec*100)+'%';
+    if(remain<=0){clearInterval(gameTimerInterval);alert('Time up!');}
+  },1000);
+}
+</script>
 </body>
 </html>
