@@ -219,9 +219,9 @@ function startRandomGame(){
 
 // === GAME1: MATCH ORDER ===
 const topImgs=[
-  "https://via.placeholder.com/80?text=A",
-  "https://via.placeholder.com/80?text=B",
-  "https://via.placeholder.com/80?text=C"
+  "https://th.bing.com/th/id/OIP.n7CsZN6ymprAIv0wAMymDgHaHa?w=152&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+  "https://th.bing.com/th/id/OIP.cT1Iume-8kxGS4q7McvrlAHaHa?w=140&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3",
+  "https://th.bing.com/th/id/OIP.Ncg6oyzixC6_0XG9r88sEwHaHa?w=135&h=180&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
 ];
 function startGame1(){
   const topOrder=[...topImgs].sort(()=>0.5-Math.random());
@@ -291,7 +291,10 @@ function startGame2(){
     if(!running)return;
     ctx.fillStyle='#aee';ctx.fillRect(0,0,canvas.width,canvas.height);
     vel+=gravity;birdY+=vel;
-    ctx.fillStyle='orange';ctx.fillRect(50,birdY,30,30); // replace with your image
+   const birdImg = new Image();
+birdImg.src = "https://th.bing.com/th/id/OIP.oKYgUpp8slI7na6Uxab7NQHaHa?w=181&h=183&c=7&r=0&o=5&dpr=1.3&pid=1.7";
+ctx.drawImage(birdImg, 50, birdY, 80, 80);
+
     pipes.forEach(p=>{
       p.x-=3;
       ctx.fillStyle='green';
