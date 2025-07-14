@@ -279,6 +279,10 @@ function startGame2(){
   let score=0;
   let gravity=0.5,jump=-6;
   let running=true;
+
+  const birdImg = new Image();
+  birdImg.src = "https://th.bing.com/th/id/OIP.oKYgUpp8slI7na6Uxab7NQHaHa?w=181&h=183&c=7&r=0&o=5&dpr=1.3&pid=1.7";
+
   function reset(){birdY=200;vel=0;pipes=[];score=0;running=true;}
   reset();
   function spawnPipe(){
@@ -291,27 +295,47 @@ function startGame2(){
     if(!running)return;
     ctx.fillStyle='#aee';ctx.fillRect(0,0,canvas.width,canvas.height);
     vel+=gravity;birdY+=vel;
-   const birdImg = new Image();
-birdImg.src = "https://th.bing.com/th/id/OIP.oKYgUpp8slI7na6Uxab7NQHaHa?w=181&h=183&c=7&r=0&o=5&dpr=1.3&pid=1.7";
-ctx.drawImage(birdImg, 50, birdY, 80, 80);
+
+    // Draw bird image only after it has loaded
+    if(birdImg.complete){
+      ctx.drawImage(birdImg, 50, birdY, 80, 80);
+    } else {
+      // fallback: draw a circle if image not loaded yet
+      ctx.fillStyle = 'blue';
+      ctx.beginPath();
+      ctx.arc(90, birdY + 40, 40, 0, Math.PI * 2);
+      ctx.fill();
+    }
 
     pipes.forEach(p=>{
       p.x-=3;
       ctx.fillStyle='green';
       ctx.fillRect(p.x,0,p.w,p.h);
       ctx.fillRect(p.x,p.h+120,p.w,400-p.h-120);
-      if(50<p.x+p.w&&50+30>p.x&&(birdY<p.h||birdY+30>p.h+120)){running=false;alert('Game over');stopAllGames();}
-      if(p.x+ p.w<50 && !p.scored){p.scored=true;score++;document.getElementById('game2-score').innerText='Score: '+score;if(score>=5){alert('You win!');stopAllGames();}}
+      if(50<p.x+p.w&&50+30>p.x&&(birdY<p.h||birdY+30>p.h+120)){
+        running=false;
+        alert('Game over');
+        stopAllGames();
+      }
+      if(p.x+ p.w<50 && !p.scored){
+        p.scored=true;
+        score++;
+        document.getElementById('game2-score').innerText='Score: '+score;
+        if(score>=5){
+          alert('You win!');
+          stopAllGames();
+        }
+      }
     });
     requestAnimationFrame(loop);
   }
   loop();
   window.onkeydown = (e) => {
-  if (e.code === 'Space') {
-    e.preventDefault(); // prevent default spacebar behavior (like scrolling)
-    vel = jump;
-  }
-};
+    if (e.code === 'Space') {
+      e.preventDefault();
+      vel = jump;
+    }
+  };
 }
 
 // === GAME3: CATCH FOOD ===
