@@ -306,7 +306,12 @@ ctx.drawImage(birdImg, 50, birdY, 80, 80);
     requestAnimationFrame(loop);
   }
   loop();
-  window.onkeydown=(e)=>{if(e.code==='Space')vel=jump;};
+  window.onkeydown = (e) => {
+  if (e.code === 'Space') {
+    e.preventDefault(); // prevent default spacebar behavior (like scrolling)
+    vel = jump;
+  }
+};
 }
 
 // === GAME3: CATCH FOOD ===
