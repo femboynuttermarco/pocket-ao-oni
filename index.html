@@ -52,7 +52,7 @@ canvas.game2-canvas{border:2px solid #333;background:#aee;width:300px;height:400
       <div id="game1-bottom"></div>
     </div>
     <div id="game2-container" class="game-container">
-      <h3>Game 2: Flappy</h3>
+      <h3>Game 2: Flappy Oni</h3>
       <canvas id="game2-canvas" class="game2-canvas" width="300" height="400"></canvas>
       <p id="game2-score">Score: 0</p>
     </div>
@@ -269,7 +269,7 @@ function checkGame1(){
   }
 }
 
-// === GAME2: FLAPPY ===
+// === GAME2: Flappy Oni ===
 function startGame2(){
   document.getElementById('game2-container').style.display='flex';
   const canvas=document.getElementById('game2-canvas');
@@ -331,7 +331,8 @@ function startGame3(){
   let interval1=setInterval(spawnItem,800);
   let interval2=setInterval(()=>{
     ctx.clearRect(0,0,300,400);
-    ctx.fillStyle='blue';ctx.fillRect(playerX,370,40,20);
+    const playerImg = new Image();
+playerImg.src = 'https://i.ytimg.com/vi/FPzb1JtuJF8/maxresdefault.jpg';
     items.forEach(item=>{
       item.y+=4;
       ctx.font='20px serif';
