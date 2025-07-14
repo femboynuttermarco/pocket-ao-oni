@@ -1,417 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Pet Game with Wash & Kitchen</title>
-<style>
-  body {
-    margin: 0; padding: 10px;
-    font-family: Arial, sans-serif;
-    user-select: none;
-    position: relative;
-    height: 100vh;
-    overflow: hidden;
-  }
-  #top-bar {
-    position: fixed;
-    top: 10px; right: 10px;
-    background: rgba(255,255,255,0.95);
-    padding: 10px;
-    border-radius: 10px;
-    width: 200px;
-    box-shadow: 0 0 6px rgba(0,0,0,0.1);
-  }
-  .stat {
-    margin-bottom: 10px;
-  }
-  .stat-label {
-    font-weight: bold;
-  }
-  .stat-bar-bg {
-    background: #ccc;
-    height: 14px;
-    border-radius: 7px;
-    margin-top: 4px;
-    overflow: hidden;
-  }
-  .stat-bar {
-    height: 14px;
-    border-radius: 7px;
-    width: 100%;
-    background: green;
-    transition: width 0.3s, background-color 0.3s;
-  }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pet Game</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      font-family: Arial, sans-serif;
+      user-select: none;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-  #buttons {
-    position: fixed;
-    top: 10px; left: 10px;
-    display: flex;
-    gap: 10px;
-  }
-  #buttons button {
-    padding: 8px 14px;
-    font-size: 14px;
-    cursor: pointer;
-  }
+    #top-bar {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 10px;
+      border-radius: 10px;
+      width: 200px;
+      box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
+    }
 
-  #room {
-    margin: 60px 10px 10px 10px;
-    position: relative;
-    width: 270px;
-    height: 270px;
-  }
+    .stat {
+      margin-bottom: 10px;
+    }
 
-  /* Pet canvas */
-  #pet-canvas {
-    border: 1px solid #aaa;
-    border-radius: 10px;
-    display: block;
-    margin: 0 auto;
-    cursor: crosshair;
-  }
+    .stat-label {
+      font-weight: bold;
+    }
 
-  /* Draggable items container */
-  #items-container {
-    margin-top: 10px;
-    display: flex;
-    justify-content: center;
-    gap: 30px;
-    font-size: 40px;
-    user-select: none;
-  }
-  .drag-item {
-    cursor: grab;
-    transition: opacity 0.2s;
-  }
-  .drag-item.dragging {
-    opacity: 0.5;
-  }
+    .stat-bar-bg {
+      background: #ccc;
+      height: 14px;
+      border-radius: 7px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
 
-  /* Kitchen plates & objects */
-  #kitchen-items {
-    font-size: 50px;
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  .kitchen-item {
-    cursor: grab;
-    user-select: none;
-  }
-</style>
+    .stat-bar {
+      height: 14px;
+      border-radius: 7px;
+      width: 100%;
+      background: green;
+      transition: width 0.3s, background-color 0.3s;
+    }
+
+    #buttons {
+      position: fixed;
+      top: 10px;
+      left: 10px;
+      display: flex;
+      gap: 10px;
+    }
+
+    #buttons button {
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    #room {
+      margin-top: 60px;
+      text-align: center;
+    }
+
+    #pet-canvas {
+      width: 400px;
+      height: 400px;
+      border: 1px solid #aaa;
+      border-radius: 10px;
+      display: block;
+      margin: 0 auto;
+      cursor: crosshair;
+    }
+
+    #shower-items, #kitchen-items {
+      display: none;
+      margin-top: 10px;
+      justify-content: center;
+      gap: 30px;
+      font-size: 40px;
+    }
+
+    .drag-item, .kitchen-item {
+      cursor: grab;
+      user-select: none;
+    }
+
+    .dragging {
+      opacity: 0.5;
+    }
+  </style>
 </head>
 <body>
 
-<div id="top-bar">
-  <div class="stat">
-    <div class="stat-label">Hunger</div>
-    <div class="stat-bar-bg">
-      <div id="hunger-bar" class="stat-bar"></div>
+  <div id="top-bar">
+    <div class="stat">
+      <div class="stat-label">Hunger</div>
+      <div class="stat-bar-bg"><div id="hunger-bar" class="stat-bar"></div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Health</div>
+      <div class="stat-bar-bg"><div id="health-bar" class="stat-bar"></div></div>
+    </div>
+    <div class="stat">
+      <div class="stat-label">Fun</div>
+      <div class="stat-bar-bg"><div id="fun-bar" class="stat-bar"></div></div>
     </div>
   </div>
-  <div class="stat">
-    <div class="stat-label">Health</div>
-    <div class="stat-bar-bg">
-      <div id="health-bar" class="stat-bar"></div>
+
+  <div id="buttons">
+    <button onclick="showRoom('shower')">Shower</button>
+    <button onclick="showRoom('kitchen')">Kitchen</button>
+    <button onclick="alert('Games coming soon!')">Games</button>
+  </div>
+
+  <div id="room">
+    <canvas id="pet-canvas" width="400" height="400"></canvas>
+
+    <div id="shower-items">
+      <div id="soap" class="drag-item" draggable="true" title="Soap">🧼</div>
+      <div id="shower" class="drag-item" draggable="true" title="Shower">🚿</div>
     </div>
-  </div>
-  <div class="stat">
-    <div class="stat-label">Fun</div>
-    <div class="stat-bar-bg">
-      <div id="fun-bar" class="stat-bar"></div>
-    </div>
-  </div>
-</div>
 
-<div id="buttons">
-  <button id="btn-shower">Shower</button>
-  <button id="btn-kitchen">Kitchen</button>
-  <button id="btn-games">Games</button>
-</div>
-
-<div id="room">
-  <!-- Canvas will display pet -->
-  <canvas id="pet-canvas" width="250" height="250"></canvas>
-
-  <!-- Shower items (hidden by default) -->
-  <div id="shower-items" style="display:none;" >
-    <div id="soap" class="drag-item" draggable="true" title="Soap">🧼</div>
-    <div id="shower" class="drag-item" draggable="true" title="Shower">🚿</div>
+    <div id="kitchen-items"></div>
   </div>
 
-  <!-- Kitchen items (hidden by default) -->
-  <div id="kitchen-items" style="display:none;"></div>
+  <script>
+    const stats = { hunger: 100, health: 100, fun: 100 };
+    function updateBars() {
+      ['hunger', 'health', 'fun'].forEach(stat => {
+        const bar = document.getElementById(`${stat}-bar`);
+        bar.style.width = `${stats[stat]}%`;
+        bar.style.backgroundColor = stats[stat] > 60 ? 'green' : stats[stat] > 30 ? 'orange' : 'red';
+      });
+    }
+    updateBars();
 
-  <!-- Games room can be implemented later -->
-</div>
+    const canvas = document.getElementById('pet-canvas');
+    const ctx = canvas.getContext('2d');
+    let originalImageData, currentImageData;
 
-<script>
-  // Stats and UI update
-  const stats = {
-    hunger: 100,
-    health: 100,
-    fun: 100
-  };
+    const petImage = new Image();
+    petImage.crossOrigin = "anonymous";
+    petImage.src = "https://tse2.mm.bing.net/th/id/OIP.LuohQanTX6FMimfo2B000wAAAA?rs=1&pid=ImgDetMain&o=7&rm=3";
+    petImage.onload = () => {
+      ctx.drawImage(petImage, 0, 0, canvas.width, canvas.height);
+      originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    };
 
-  function updateBars() {
-    ['hunger', 'health', 'fun'].forEach(stat => {
-      const bar = document.getElementById(`${stat}-bar`);
-      bar.style.width = `${stats[stat]}%`;
-      if (stats[stat] > 60) {
-        bar.style.backgroundColor = 'green';
-      } else if (stats[stat] > 30) {
-        bar.style.backgroundColor = 'orange';
-      } else {
-        bar.style.backgroundColor = 'red';
+    function showRoom(room) {
+      document.getElementById('shower-items').style.display = 'none';
+      document.getElementById('kitchen-items').style.display = 'none';
+      if (room === 'shower') {
+        document.getElementById('shower-items').style.display = 'flex';
+      } else if (room === 'kitchen') {
+        document.getElementById('kitchen-items').style.display = 'flex';
+        generateKitchenItems();
       }
+    }
+
+    let draggingItem = null;
+
+    document.querySelectorAll('.drag-item').forEach(item => {
+      item.addEventListener('dragstart', () => {
+        draggingItem = item.id;
+        item.classList.add('dragging');
+      });
+      item.addEventListener('dragend', () => {
+        draggingItem = null;
+        item.classList.remove('dragging');
+      });
     });
-  }
-  updateBars();
 
-  // Pet canvas setup
-  const canvas = document.getElementById('pet-canvas');
-  const ctx = canvas.getContext('2d');
-  let originalImageData;
-  let currentImageData;
+    canvas.addEventListener('dragover', e => {
+      e.preventDefault();
+      if (!draggingItem) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      if (draggingItem === 'soap') paintSoap(x, y);
+      else if (draggingItem === 'shower') paintShower(x, y);
+    });
 
-  // Load pet image
-  const petImage = new Image();
-  petImage.crossOrigin = "anonymous";
-  petImage.src = "https://tse2.mm.bing.net/th/id/OIP.LuohQanTX6FMimfo2B000wAAAA?rs=1&pid=ImgDetMain&o=7&rm=3";
-  petImage.onload = () => {
-    ctx.drawImage(petImage, 0, 0, canvas.width, canvas.height);
-    originalImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    currentImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  };
-
-  // Buttons and rooms
-  const btnShower = document.getElementById('btn-shower');
-  const btnKitchen = document.getElementById('btn-kitchen');
-  const btnGames = document.getElementById('btn-games');
-
-  const showerItems = document.getElementById('shower-items');
-  const kitchenItems = document.getElementById('kitchen-items');
-
-  function showRoom(room) {
-    showerItems.style.display = 'none';
-    kitchenItems.style.display = 'none';
-    // For now, games room empty
-
-    if (room === 'shower') {
-      showerItems.style.display = 'flex';
-    } else if (room === 'kitchen') {
-      kitchenItems.style.display = 'flex';
-      generateKitchenItems();
+    function getIndex(x, y, w) {
+      return (Math.floor(y) * w + Math.floor(x)) * 4;
     }
-  }
 
-  btnShower.onclick = () => showRoom('shower');
-  btnKitchen.onclick = () => showRoom('kitchen');
-  btnGames.onclick = () => alert('Games coming soon!');
-
-  // Dragging state
-  let draggingItem = null;
-
-  // Setup draggable soap and shower
-  const soap = document.getElementById('soap');
-  const shower = document.getElementById('shower');
-
-  soap.addEventListener('dragstart', () => {
-    draggingItem = 'soap';
-    soap.classList.add('dragging');
-  });
-  soap.addEventListener('dragend', () => {
-    draggingItem = null;
-    soap.classList.remove('dragging');
-  });
-
-  shower.addEventListener('dragstart', () => {
-    draggingItem = 'shower';
-    shower.classList.add('dragging');
-  });
-  shower.addEventListener('dragend', () => {
-    draggingItem = null;
-    shower.classList.remove('dragging');
-  });
-
-  // Allow drop on pet canvas
-  canvas.addEventListener('dragover', e => {
-    e.preventDefault();
-    if (!draggingItem) return;
-
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    if (draggingItem === 'soap') {
-      paintSoap(x, y);
-    } else if (draggingItem === 'shower') {
-      paintShower(x, y);
-    }
-  });
-
-  // Paint helpers
-  function getIndex(x, y, width) {
-    return (y * width + x) * 4;
-  }
-
-  function paintSoap(centerX, centerY) {
-    if (!currentImageData) return;
-    const brushRadius = 15;
-    const data = currentImageData.data;
-
-    for(let y = Math.max(0, centerY - brushRadius); y < Math.min(canvas.height, centerY + brushRadius); y++) {
-      for(let x = Math.max(0, centerX - brushRadius); x < Math.min(canvas.width, centerX + brushRadius); x++) {
-        const dx = x - centerX;
-        const dy = y - centerY;
-        if (dx*dx + dy*dy <= brushRadius*brushRadius) {
-          const i = getIndex(x, y, canvas.width);
-          // increase R,G,B towards 255 gradually
-          data[i] = Math.min(255, data[i] + 15);
-          data[i+1] = Math.min(255, data[i+1] + 15);
-          data[i+2] = Math.min(255, data[i+2] + 15);
+    function paintSoap(cx, cy) {
+      if (!currentImageData) return;
+      const r = 15;
+      const data = currentImageData.data;
+      for (let y = Math.max(0, cy - r); y < Math.min(canvas.height, cy + r); y++) {
+        for (let x = Math.max(0, cx - r); x < Math.min(canvas.width, cx + r); x++) {
+          const dx = x - cx, dy = y - cy;
+          if (dx*dx + dy*dy <= r*r) {
+            const i = getIndex(x, y, canvas.width);
+            data[i] = Math.min(255, data[i] + 15);
+            data[i+1] = Math.min(255, data[i+1] + 15);
+            data[i+2] = Math.min(255, data[i+2] + 15);
+          }
         }
       }
+      ctx.putImageData(currentImageData, 0, 0);
     }
-    ctx.putImageData(currentImageData, 0, 0);
-  }
 
-  function paintShower(centerX, centerY) {
-    if (!currentImageData || !originalImageData) return;
-    const brushRadius = 15;
-    const currData = currentImageData.data;
-    const origData = originalImageData.data;
-
-    let healed = false;
-
-    for(let y = Math.max(0, centerY - brushRadius); y < Math.min(canvas.height, centerY + brushRadius); y++) {
-      for(let x = Math.max(0, centerX - brushRadius); x < Math.min(canvas.width, centerX + brushRadius); x++) {
-        const dx = x - centerX;
-        const dy = y - centerY;
-        if (dx*dx + dy*dy <= brushRadius*brushRadius) {
-          const i = getIndex(x, y, canvas.width);
-
-          // restore original pixel gradually (approach)
-          currData[i] = approach(currData[i], origData[i], 15);
-          currData[i+1] = approach(currData[i+1], origData[i+1], 15);
-          currData[i+2] = approach(currData[i+2], origData[i+2], 15);
-          healed = true;
+    function paintShower(cx, cy) {
+      if (!currentImageData || !originalImageData) return;
+      const r = 15;
+      const data = currentImageData.data;
+      const orig = originalImageData.data;
+      let healed = false;
+      for (let y = Math.max(0, cy - r); y < Math.min(canvas.height, cy + r); y++) {
+        for (let x = Math.max(0, cx - r); x < Math.min(canvas.width, cx + r); x++) {
+          const dx = x - cx, dy = y - cy;
+          if (dx*dx + dy*dy <= r*r) {
+            const i = getIndex(x, y, canvas.width);
+            data[i] = approach(data[i], orig[i], 15);
+            data[i+1] = approach(data[i+1], orig[i+1], 15);
+            data[i+2] = approach(data[i+2], orig[i+2], 15);
+            healed = true;
+          }
         }
       }
+      ctx.putImageData(currentImageData, 0, 0);
+      if (healed) {
+        stats.health = Math.min(100, stats.health + 0.5);
+        updateBars();
+      }
     }
-    ctx.putImageData(currentImageData, 0, 0);
 
-    // Heal health if any pixels restored
-    if (healed) {
-      stats.health = Math.min(100, stats.health + 0.7);
+    function approach(current, target, step) {
+      return current < target
+        ? Math.min(current + step, target)
+        : Math.max(current - step, target);
+    }
+
+    const kitchenFood = ["🍞", "🥞", "🧇", "🍖", "🍗", "🍕"];
+    const kitchenBad = ["🪨", "⌛", "👓", "🕶️", "🥽", "🧤"];
+
+    function generateKitchenItems() {
+      const container = document.getElementById('kitchen-items');
+      container.innerHTML = '';
+      const pickRandom = (arr, count) => [...arr].sort(() => 0.5 - Math.random()).slice(0, count);
+
+      pickRandom(kitchenFood, 3).forEach(char => {
+        const el = document.createElement('div');
+        el.textContent = char;
+        el.className = 'kitchen-item';
+        el.dataset.type = 'food';
+        el.draggable = true;
+        el.addEventListener('dragstart', e => kitchenDragging = e.target);
+        container.appendChild(el);
+      });
+
+      pickRandom(kitchenBad, 2).forEach(char => {
+        const el = document.createElement('div');
+        el.textContent = char;
+        el.className = 'kitchen-item';
+        el.dataset.type = 'bad';
+        el.draggable = true;
+        el.addEventListener('dragstart', e => kitchenDragging = e.target);
+        container.appendChild(el);
+      });
+    }
+
+    let kitchenDragging = null;
+
+    canvas.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!kitchenDragging) return;
+      const type = kitchenDragging.dataset.type;
+      stats.hunger += type === 'food' ? 15 : -15;
+      stats.hunger = Math.max(0, Math.min(100, stats.hunger));
       updateBars();
-    }
-  }
-
-  function approach(current, target, step) {
-    if (current < target) return Math.min(current + step, target);
-    if (current > target) return Math.max(current - step, target);
-    return current;
-  }
-
-  // Kitchen items logic
-  const kitchenFood = ["🍞", "🥞", "🧇", "🍖", "🍗", "🍕"];
-  const kitchenBad = ["🪨", "⌛", "👓", "🕶️", "🥽", "🧤"];
-
-  const kitchenItemsDiv = document.getElementById('kitchen-items');
-
-  function generateKitchenItems() {
-    kitchenItemsDiv.innerHTML = '';
-
-    // Pick 3 random food
-    const foodSamples = [];
-    while (foodSamples.length < 3) {
-      const f = kitchenFood[Math.floor(Math.random() * kitchenFood.length)];
-      if (!foodSamples.includes(f)) foodSamples.push(f);
-    }
-    foodSamples.forEach(food => {
-      const el = document.createElement('div');
-      el.className = 'kitchen-item';
-      el.textContent = food;
-      el.draggable = true;
-      el.title = 'Food (increase hunger)';
-      el.dataset.type = 'food';
-      kitchenItemsDiv.appendChild(el);
+      generateKitchenItems();
+      kitchenDragging = null;
     });
 
-    // Pick 2 random bad items
-    const badSamples = [];
-    while (badSamples.length < 2) {
-      const b = kitchenBad[Math.floor(Math.random() * kitchenBad.length)];
-      if (!badSamples.includes(b)) badSamples.push(b);
-    }
-    badSamples.forEach(bad => {
-      const el = document.createElement('div');
-      el.className = 'kitchen-item';
-      el.textContent = bad;
-      el.draggable = true;
-      el.title = 'Bad item (decrease hunger)';
-      el.dataset.type = 'bad';
-      kitchenItemsDiv.appendChild(el);
-    });
+    canvas.addEventListener('dragover', e => e.preventDefault());
 
-    // Add drag listeners to kitchen items
-    Array.from(kitchenItemsDiv.children).forEach(item => {
-      item.addEventListener('dragstart', kitchenDragStart);
-      item.addEventListener('dragend', kitchenDragEnd);
-    });
-  }
+    // Decrease stats over time
+    setInterval(() => {
+      stats.hunger = Math.max(0, stats.hunger - 0.1);
+      stats.health = Math.max(0, stats.health - 0.05);
+      stats.fun = Math.max(0, stats.fun - 0.05);
+      updateBars();
+    }, 1000);
 
-  // Dragging kitchen items
-  let kitchenDragging = null;
-
-  function kitchenDragStart(e) {
-    kitchenDragging = e.target;
-    e.target.classList.add('dragging');
-  }
-  function kitchenDragEnd(e) {
-    if(kitchenDragging) kitchenDragging.classList.remove('dragging');
-    kitchenDragging = null;
-  }
-
-  // Drag over and drop on canvas for kitchen items
-  canvas.addEventListener('dragover', e => {
-    e.preventDefault();
-  });
-
-  canvas.addEventListener('drop', e => {
-    e.preventDefault();
-    if (!kitchenDragging) return;
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-
-    // When food or bad item dropped on pet
-    if (kitchenDragging.dataset.type === 'food') {
-      stats.hunger = Math.min(100, stats.hunger + 15);
-    } else if (kitchenDragging.dataset.type === 'bad') {
-      stats.hunger = Math.max(0, stats.hunger - 15);
-    }
-    updateBars();
-
-    kitchenDragging.classList.remove('dragging');
-    kitchenDragging = null;
-  });
-
-  // Stats decrease over time
-  setInterval(() => {
-    stats.hunger = Math.max(0, stats.hunger - 0.1);
-    stats.health = Math.max(0, stats.health - 0.05);
-    stats.fun = Math.max(0, stats.fun - 0.05);
-    updateBars();
-  }, 1000);
-
-  // Initialize showing shower room by default
-  showRoom('shower');
-
-</script>
-
+    showRoom('shower');
+  </script>
 </body>
 </html>
