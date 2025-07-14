@@ -279,4 +279,195 @@ function startGame1(){
   startTimer(30);
   const top=document.getElementById('game1-top');
   const bottom=document.getElementById('game1-bottom');
- 
+  top.innerHTML=''; bottom.innerHTML='';
+  // top random order
+  game1Images.sort(()=>0.5-Math.random()).forEach(src=>{
+    const img=document.createElement('img');
+    img.src=src; img.draggable=true;
+    img.ondragstart=e=>{
+      e.dataTransfer.setData('text/plain',src);
+    };
+    top.appendChild(img);
+  });
+  // bottom placeholders
+  game1Images.forEach(_=>{
+    const img=document.createElement('img');
+    img.dataset.drop=true;
+    img.style.backgroundColor='#eee';
+    img.addEventListener('dragover',e=>e.preventDefault());
+    img.addEventListener('drop',e=>{
+      e.preventDefault();
+      const data=e.dataTransfer.getData('text/plain');
+      if(data){
+        img.src=data;
+        // check correctness
+        const correct = game1Images.indexOf(data) === Array.from(bottom.children).indexOf(img);
+        if(correct){stats.fun=Math.min(100,stats.fun+5);} else {stats.fun=Math.max(0,stats.fun-3);}
+        updateBars();
+      }
+    });
+    bottom.appendChild(img);
+  });
+}
+
+function startTimer(seconds){
+  const bar=document.getElementById('game-timer-bar');
+  let time=seconds;
+  bar.style.width='100%';
+  gameTimerInterval=setInterval(()=>{
+    time-=0.1;
+    if(time<=0){
+      clearInterval(gameTimerInterval);
+      gameTimerInterval=null;
+      stopCurrentGame();
+      stats.fun=Math.max(0,stats.fun-10);
+      updateBars();
+    }
+    else{
+      bar.style.width=(time/seconds*100)+'%';
+    }
+  },100);
+}
+
+function startGame2(){
+  currentGame=2;
+  document.getElementById('game2-container').style.display='flex';
+  startTimer(20);
+  const fCanvas=document.getElementById('flappy-canvas');
+  const fCtx=fCanvas.getContext('2d');
+
+  // Flappy bird simplified
+  let bird={x:50,y:150,vy:0};
+  const gravity=0.5;
+  const jump=-8;
+  let pipes=[];
+  let frame=0;
+  let gameOver=false;
+
+  function createPipe(){
+    const height=Math.random()*150+50;
+    pipes.push({x:300,y:0,height});
+    pipes.push({x:300,y:height+100,height:300-height-100});
+  }
+  function reset(){
+    bird={x:50,y:150,vy:0};
+    pipes=[];
+    frame=0;
+    gameOver=false;
+  }
+  reset();
+
+  function loop(){
+    if(gameOver) return;
+    frame++;
+    if(frame%90===0) createPipe();
+    bird.vy+=gravity;
+    bird.y+=bird.vy;
+    // collision
+    if(bird.y>280||bird.y<0){
+      gameOver=true;
+      stats.fun=Math.max(0,stats.fun-10);
+      updateBars();
+      stopCurrentGame();
+      return;
+    }
+    pipes.forEach(p=>{
+      p.x-=2;
+      if(p.x+50>bird.x && p.x<bird.x+30){
+        if(bird.y<p.height && p.y===0) gameOver=true;
+        if(bird.y>p.height && p.y!==0) gameOver=true;
+      }
+    });
+    pipes=pipes.filter(p=>p.x>-50);
+
+    if(gameOver){
+      stats.fun=Math.max(0,stats.fun-10);
+      updateBars();
+      stopCurrentGame();
+      return;
+    }
+    fCtx.clearRect(0,0,300,300);
+    fCtx.fillStyle='skyblue';
+    fCtx.fillRect(0,0,300,300);
+    fCtx.fillStyle='green';
+    pipes.forEach(p=>{
+      fCtx.fillRect(p.x,p.y,50,p.height);
+    });
+    fCtx.fillStyle='yellow';
+    fCtx.beginPath();
+    fCtx.ellipse(bird.x,bird.y,15,12,0,0,Math.PI*2);
+    fCtx.fill();
+
+    requestAnimationFrame(loop);
+  }
+  fCanvas.onclick=()=>{
+    if(!gameOver) bird.vy=jump;
+  };
+  loop();
+}
+
+function startGame3(){
+  currentGame=3;
+  document.getElementById('game3-container').style.display='flex';
+  startTimer(25);
+  const cCanvas=document.getElementById('catch-canvas');
+  const cCtx=cCanvas.getContext('2d');
+  let score=0;
+  let objects=[];
+  let gameOver=false;
+  let playerX=150;
+
+  function reset(){
+    score=0;objects=[];gameOver=false;playerX=150;
+  }
+  reset();
+
+  function spawnObject(){
+    objects.push({x:Math.random()*280,y:0,vy:2+Math.random()*3});
+  }
+
+  function loop(){
+    if(gameOver) return;
+    cCtx.clearRect(0,0,300,300);
+    // draw player
+    cCtx.fillStyle='purple';
+    cCtx.fillRect(playerX,270,30,30);
+    // move objects
+    objects.forEach(o=>{
+      o.y+=o.vy;
+      cCtx.fillStyle='red';
+      cCtx.beginPath();
+      cCtx.arc(o.x,o.y,10,0,Math.PI*2);
+      cCtx.fill();
+    });
+    // collision
+    objects=objects.filter(o=>{
+      if(o.y>300) return false;
+      if(o.y>270 && o.x>playerX && o.x<(playerX+30)){
+        score++;
+        stats.fun=Math.min(100,stats.fun+3);
+        updateBars();
+        return false;
+      }
+      return true;
+    });
+
+    cCtx.fillStyle='black';
+    cCtx.font='16px Arial';
+    cCtx.fillText('Score: '+score,10,20);
+
+    if(Math.random()<0.02) spawnObject();
+
+    requestAnimationFrame(loop);
+  }
+  cCanvas.onmousemove=e=>{
+    const rect=cCanvas.getBoundingClientRect();
+    playerX=e.clientX-rect.left-15;
+    if(playerX<0)playerX=0;
+    if(playerX>270)playerX=270;
+  };
+  loop();
+}
+</script>
+</body>
+</html>
